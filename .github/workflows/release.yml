@@ -42,6 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           tag="${GITHUB_REF_NAME}"
-          gh release create "$tag" dist/timed-boot-resync-*.tar.gz \
-            --generate-notes --fail-on-unmatched-files \
-            || gh release upload "$tag" dist/timed-boot-resync-*.tar.gz --clobber
+          asset="$(ls dist/timed-boot-resync-*.tar.gz | head -1)"
+          [ -f "$asset" ] || { echo "FATAL no tarball found in dist/"; exit 1; }
+          gh release create "$tag" "$asset" --generate-notes --verify-tag \
+            || gh release upload "$tag" "$asset" --clobber
