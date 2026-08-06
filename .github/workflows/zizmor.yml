@@ -32,11 +32,11 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@e4db8464a088ece1b920f60402e813ea4de65b8f # v4.7.4
       - name: zizmor (SARIF for code scanning)
-        run: uvx zizmor@v1.29.0 --persona=pedantic --format=sarif --output=zizmor.sarif .
+        run: uvx zizmor@v1.29.0 --persona=pedantic --format=sarif . > zizmor.sarif || true
       - name: zizmor (human-readable, fails CI on any pedantic finding)
         run: uvx zizmor@v1.29.0 --persona=pedantic --format=github .
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@c3400c2f38909e0dcf3c3a41f2030a8217be5d3e # v3.28.15
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
         if: always()
         with:
           sarif_file: zizmor.sarif
