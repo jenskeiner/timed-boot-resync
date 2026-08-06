@@ -19,8 +19,8 @@ This package is distributed as a Homebrew **tap** (modern Homebrew no longer
 allows installing a formula directly from an HTTPS URL):
 
 ```bash
-brew tap jenskeiner/macos-timed-sync https://github.com/jenskeiner/macos-timed-sync
-brew install jenskeiner/macos-timed-sync/timed-boot-resync
+brew tap jenskeiner/timed-boot-resync https://github.com/jenskeiner/timed-boot-resync
+brew install jenskeiner/timed-boot-resync/timed-boot-resync
 ```
 
 The formula pins a `sha256` that is verified against the GitHub Release tarball.

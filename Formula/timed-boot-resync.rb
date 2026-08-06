@@ -1,12 +1,12 @@
 class TimedBootResync < Formula
   desc "Force a clean NTP resync at boot on Apple Silicon Macs that lose RTC time when unplugged"
-  homepage "https://github.com/jenskeiner/macos-timed-sync"
-  url "https://github.com/jenskeiner/macos-timed-sync/releases/download/v1.0.0/timed-boot-resync-1.0.0.tar.gz"
+  homepage "https://github.com/jenskeiner/timed-boot-resync"
+  url "https://github.com/jenskeiner/timed-boot-resync/releases/download/v1.0.0/timed-boot-resync-1.0.0.tar.gz"
   version "1.0.0"
   # sha256 is pinned to the canonical reproducible build produced in CI (ubuntu, GNU tar + gzip -n).
   sha256 "8d2b8d298eebf6bd0c3e5628ca47f83ea32b5f875d4d51eea790f46b07b7dff5"
   license "MIT"
-  head "https://github.com/jenskeiner/macos-timed-sync.git", branch: "main"
+  head "https://github.com/jenskeiner/timed-boot-resync.git", branch: "main"
 
   depends_on :macos
 
