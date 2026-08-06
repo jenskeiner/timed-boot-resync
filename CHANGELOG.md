@@ -17,5 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI (lint + reproducible-sha gate), release, and zizmor workflows.
 - Gitflow layout (`main` release-only, `develop` for in-progress work).
 
-[Unreleased]: https://github.com/jenskeiner/macos-timed-sync/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/jenskeiner/macos-timed-sync/releases/tag/v1.0.0
+[Unreleased]: https://github.com/jenskeiner/timed-boot-resync/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/jenskeiner/timed-boot-resync/releases/tag/v1.0.0
