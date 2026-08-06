@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck src/timed-boot-resync scripts/build-tarball.sh
+      - name: ruby syntax
+        run: ruby -c Formula/timed-boot-resync.rb
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Build reproducible tarball
+        run: scripts/build-tarball.sh
+      - name: sha256 (copy into Formula during bootstrap)
+        run: |
+          echo "::notice::tarball sha256"
+          sha256sum dist/timed-boot-resync-*.tar.gz
+      - name: Verify sha matches formula (skipped until bootstrapped)
+        run: |
+          set -euo pipefail
+          actual=$(sha256sum dist/timed-boot-resync-*.tar.gz | awk '{print $1}')
+          formula=$(grep -E '^[[:space:]]*sha256 "' Formula/timed-boot-resync.rb | head -1 | sed -E 's/.*"([0-9a-f]{64})".*/\1/')
+          if [ -z "$formula" ] || [ "$formula" = "__BOOTSTRAP_SHA256__" ]; then
+            echo "::warning::Formula sha not bootstrapped yet. Rebuild sha=$actual — paste into Formula/timed-boot-resync.rb"
+            exit 0
+          fi
+          [ "$actual" = "$formula" ] || { echo "MISMATCH actual=$actual formula=$formula"; exit 1; }
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.0
+        with:
+          name: dist-tarball
+          path: dist/*.tar.gz
+          if-no-files-found: error

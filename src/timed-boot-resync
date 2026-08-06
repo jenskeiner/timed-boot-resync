@@ -1,0 +1,77 @@
+#!/bin/bash
+# timed-boot-resync — force a clean NTP resync when the clock boots wrong.
+#
+# Apple Silicon desktops have no RTC coin cell; disconnected from mains while
+# off, the clock loses its reference and boots stale, and 'timed' then reloads a
+# stale model and rejects the correct NTP time for ~an hour. This clears that
+# state, restarts timed clean, and hard-sets the clock — but only when the clock
+# actually booted wrong, so normal boots keep timed's drift calibration intact.
+#
+# Runs as root from a LaunchDaemon at boot. Also safe to run by hand:
+#   sudo timed-boot-resync
+set -u
+
+# ---- version --------------------------------------------------------------
+case "${1:-}" in
+    -V|--version) echo "timed-boot-resync 1.0.0"; exit 0 ;;
+esac
+
+# ---- configuration (defaults; overridden by first readable conf below) ----
+SERVER="time.apple.com"   # NTP server to sync against
+TOL="2"                   # seconds of offset tolerated before remediating
+MAX_WAIT="60"             # network-wait loops (~2s each)
+
+for _c in "${TBR_CONF:-}" \
+          /opt/homebrew/etc/timed-boot-resync.conf \
+          /usr/local/etc/timed-boot-resync.conf \
+          /etc/timed-boot-resync.conf; do
+    if [ -n "$_c" ] && [ -r "$_c" ]; then
+        # shellcheck disable=SC1090
+        . "$_c"
+        break
+    fi
+done
+
+# ---- internals ------------------------------------------------------------
+STATE="/var/db/timed/com.apple.timed.plist"
+LOG="/var/log/timed-boot-resync.log"
+
+log() { printf '%s %s\n' "$(/bin/date '+%FT%T%z')" "$*" >>"$LOG"; }
+offset() {
+    /usr/bin/sntp "$SERVER" 2>/dev/null \
+      | /usr/bin/awk '{for(i=1;i<=NF;i++) if($i=="+/-"){print $(i-1); exit}}'
+}
+
+log "=== start; clock reads $(/bin/date); server=$SERVER ==="
+
+# 1) Wait for a default route AND a reachable NTP server.
+i=0
+while [ "$i" -lt "$MAX_WAIT" ]; do
+    if /sbin/route -n get default >/dev/null 2>&1 && /usr/bin/sntp "$SERVER" >/dev/null 2>&1; then
+        log "network up after $((i*2))s"; break
+    fi
+    i=$((i+1)); sleep 2
+done
+
+off="$(offset)"
+log "measured offset: ${off:-<none>}"
+
+# 2) If already close, leave timed's calibration untouched.
+if ! /usr/bin/awk -v o="${off:-0}" -v t="$TOL" 'BEGIN{o+=0; if(o<0)o=-o; exit !(o>t)}'; then
+    log "within ${TOL}s — nothing to do"; log "=== done ==="; exit 0
+fi
+
+# 3) Clear stale state, restart timed clean, hard-set from NTP.
+log "offset > ${TOL}s — remediating"
+if [ -e "$STATE" ]; then /bin/rm -f "$STATE" && log "removed $STATE"; fi
+if [ -d /var/db/timed/Library ]; then /bin/rm -rf /var/db/timed/Library && log "removed stale Library dir"; fi
+/bin/launchctl kickstart -k system/com.apple.timed && log "restarted timed"
+sleep 3
+if /usr/bin/sntp -sS "$SERVER" >>"$LOG" 2>&1; then
+    log "sntp -sS ok; clock now $(/bin/date)"
+else
+    log "sntp -sS FAILED; clock still $(/bin/date)"
+fi
+log "post-fix offset: $(offset)"
+log "=== done ==="
+exit 0

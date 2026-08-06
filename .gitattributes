@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.tar.gz binary
+*.sh text eol=lf
+src/timed-boot-resync text eol=lf
