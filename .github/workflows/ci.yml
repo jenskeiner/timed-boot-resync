@@ -50,7 +50,7 @@ jobs:
         run: |
           set -euo pipefail
           actual=$(sha256sum dist/timed-boot-resync-*.tar.gz | awk '{print $1}')
-          formula=$(grep -E '^[[:space:]]*sha256 "' Formula/timed-boot-resync.rb | head -1 | sed -E 's/.*"([0-9a-f]{64})".*/\1/')
+          formula=$(grep -E '^[[:space:]]*sha256 "' Formula/timed-boot-resync.rb | head -1 | sed -E 's/^[[:space:]]*sha256 "([^"]*)".*/\1/')
           if [ -z "$formula" ] || [ "$formula" = "__BOOTSTRAP_SHA256__" ]; then
             echo "::warning::Formula sha not bootstrapped yet. Rebuild sha=$actual — paste into Formula/timed-boot-resync.rb"
             exit 0

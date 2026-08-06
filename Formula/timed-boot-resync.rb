@@ -3,9 +3,8 @@ class TimedBootResync < Formula
   homepage "https://github.com/jenskeiner/macos-timed-sync"
   url "https://github.com/jenskeiner/macos-timed-sync/releases/download/v1.0.0/timed-boot-resync-1.0.0.tar.gz"
   version "1.0.0"
-  # sha256 is pinned to the canonical reproducible build produced in CI.
-  # Until the bootstrap value is filled in, CI's sha-gate skips (see ci.yml).
-  sha256 "__BOOTSTRAP_SHA256__"
+  # sha256 is pinned to the canonical reproducible build produced in CI (ubuntu, GNU tar + gzip -n).
+  sha256 "8d2b8d298eebf6bd0c3e5628ca47f83ea32b5f875d4d51eea790f46b07b7dff5"
   license "MIT"
   head "https://github.com/jenskeiner/macos-timed-sync.git", branch: "main"
 
