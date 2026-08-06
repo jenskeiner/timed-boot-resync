@@ -6,8 +6,6 @@ on:
     paths:
       - ".github/workflows/**"
   pull_request:
-    paths:
-      - ".github/workflows/**"
   schedule:
     - cron: "16 6 * * 1"
 
