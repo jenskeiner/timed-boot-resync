@@ -1,10 +1,9 @@
 class TimedBootResync < Formula
-  desc "Force a clean NTP resync at boot on Apple Silicon Macs that lose RTC time when unplugged"
+  desc "Force an NTP resync at boot on Apple Silicon Macs with a stale clock"
   homepage "https://github.com/jenskeiner/timed-boot-resync"
   url "https://github.com/jenskeiner/timed-boot-resync/releases/download/v1.0.0/timed-boot-resync-1.0.0.tar.gz"
-  version "1.0.0"
   # sha256 is pinned to the canonical reproducible build produced in CI (ubuntu, GNU tar + gzip -n).
-  sha256 "007a0ae9c2ad47d5b8a5b0e8b0fc43e7503f9e5f05e47f020f906e3a9657cd96"
+  sha256 "ae5e3abc7168862677bc16ab4a064edab3678a38df23d816f50544e9d167d1a7"
   license "MIT"
   head "https://github.com/jenskeiner/timed-boot-resync.git", branch: "main"
 
@@ -13,7 +12,7 @@ class TimedBootResync < Formula
   def install
     sbin.install "timed-boot-resync"
     (sbin/"timed-boot-resync").chmod 0755
-    etc.install "timed-boot-resync.conf"   # Homebrew preserves edits on upgrade
+    etc.install "timed-boot-resync.conf" # Homebrew preserves edits on upgrade
     doc.install "README.md", "LICENSE"
   end
 

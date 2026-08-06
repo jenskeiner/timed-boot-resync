@@ -34,6 +34,19 @@ sudo brew services start timed-boot-resync
 `sudo` is required because the LaunchDaemon runs as **root** (it must write to
 `/var/db/timed` and hard-set the system clock).
 
+> **Heads-up:** enabling the service with `sudo` makes **root** the owner of the
+> generated LaunchDaemon plist and the `brew services` state for this formula.
+> From then on Homebrew will warn that **`sudo` is required** for any command
+> that touches those files — e.g. upgrading or uninstalling:
+>
+> ```bash
+> sudo brew upgrade timed-boot-resync
+> sudo brew uninstall timed-boot-resync
+> sudo brew services stop timed-boot-resync
+> ```
+>
+> This is expected for a root LaunchDaemon, not an error.
+
 ## Configure
 
 Set your NTP server (default `time.apple.com`) in:
