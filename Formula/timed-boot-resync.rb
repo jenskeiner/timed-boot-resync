@@ -4,7 +4,7 @@ class TimedBootResync < Formula
   url "https://github.com/jenskeiner/timed-boot-resync/releases/download/v1.0.0/timed-boot-resync-1.0.0.tar.gz"
   version "1.0.0"
   # sha256 is pinned to the canonical reproducible build produced in CI (ubuntu, GNU tar + gzip -n).
-  sha256 "8d2b8d298eebf6bd0c3e5628ca47f83ea32b5f875d4d51eea790f46b07b7dff5"
+  sha256 "007a0ae9c2ad47d5b8a5b0e8b0fc43e7503f9e5f05e47f020f906e3a9657cd96"
   license "MIT"
   head "https://github.com/jenskeiner/timed-boot-resync.git", branch: "main"
 
