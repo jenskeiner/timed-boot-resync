@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create the release and upload the asset
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Build reproducible tarball
+        run: scripts/build-tarball.sh
+
+      - name: Verify sha matches formula (release gate)
+        run: |
+          set -euo pipefail
+          actual=$(sha256sum dist/timed-boot-resync-*.tar.gz | awk '{print $1}')
+          formula=$(grep -E '^[[:space:]]*sha256 "' Formula/timed-boot-resync.rb | head -1 | sed -E 's/.*"([0-9a-f]{64})".*/\1/')
+          if [ -z "$formula" ] || [ "$formula" = "__BOOTSTRAP_SHA256__" ]; then
+            echo "FATAL formula sha not bootstrapped; actual=$actual"; exit 1
+          fi
+          [ "$actual" = "$formula" ] || { echo "FATAL sha mismatch actual=$actual formula=$formula"; exit 1; }
+
+      - name: Attach tarball to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          gh release create "$tag" dist/timed-boot-resync-*.tar.gz \
+            --generate-notes --fail-on-unmatched-files \
+            || gh release upload "$tag" dist/timed-boot-resync-*.tar.gz --clobber

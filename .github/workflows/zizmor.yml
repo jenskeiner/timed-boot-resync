@@ -1,0 +1,43 @@
+name: zizmor
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+  schedule:
+    - cron: "16 6 * * 1"
+
+permissions: {}
+
+concurrency:
+  group: zizmor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # upload SARIF to code scanning
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Setup uv
+        uses: astral-sh/setup-uv@e4db8464a088ece1b920f60402e813ea4de65b8f # v4.7.4
+      - name: zizmor (SARIF for code scanning)
+        run: uvx zizmor@v1.29.0 --persona=pedantic --format=sarif --output=zizmor.sarif .
+      - name: zizmor (human-readable, fails CI on any pedantic finding)
+        run: uvx zizmor@v1.29.0 --persona=pedantic --format=github .
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@c3400c2f38909e0dcf3c3a41f2030a8217be5d3e # v3.28.15
+        if: always()
+        with:
+          sarif_file: zizmor.sarif
+          category: zizmor
