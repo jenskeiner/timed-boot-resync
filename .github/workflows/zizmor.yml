@@ -30,7 +30,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup uv
-        uses: astral-sh/setup-uv@e4db8464a088ece1b920f60402e813ea4de65b8f # v4.7.4
+        uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4.7.4
       - name: zizmor (SARIF for code scanning)
         run: uvx zizmor@v1.29.0 --persona=pedantic --format=sarif --output=zizmor.sarif .
       - name: zizmor (human-readable, fails CI on any pedantic finding)
