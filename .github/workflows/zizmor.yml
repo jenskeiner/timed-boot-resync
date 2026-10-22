@@ -34,7 +34,7 @@ jobs:
       - name: zizmor (human-readable, fails CI on any pedantic finding)
         run: uvx zizmor@v1.29.0 --persona=pedantic --format=github .
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         if: always()
         with:
           sarif_file: zizmor.sarif
